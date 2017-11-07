@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block jquery %}
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.form.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        var query = '';
+        var location = '';
+        var results_start = 0;
+        $('#search_form').ajaxForm({
+            dataType: 'json',
+            beforeSubmit: function(){
+        
+            },
+            success: function(response){
+                if(response.success == 'true'){
+                    query = '';
+                    location = '';
+                    results_start = 0;
+                    console.log("results counter begin: "+ results_start);
+                    $('.total_results').html("Total Results: " + response.total_results); 
+                    $('.results').html(response.results); 
+                    if(response.more_results == 'true')
+                    {
+                        $('#load_more').show();
+                        results_start = response.results_end;
+                        console.log("results counter after: "+ results_start);
+                    }
+                    query = response.query;
+                    location = response.location;
+                }else{
+                    alert('ajax error');
+                }
+            }
+        });
+        
+        $("#load_more").live('click', function(){
+            var data = "location="+location+"&query="+query+"&results_start="+results_start;
+            $.ajax({
+                dataType: 'json',
+                url: '{% url search %}',
+                data: data,
+                success: function(response){
+                     if(response.success == 'true'){
+                         console.log("results counter with click: "+ results_start);
+                         $('.results').append(response.results);
+                         if(response.more_results == 'false')
+                         {
+                            $('#load_more').hide();
+                         }
+                         else
+                         {
+                             results_start = response.results_end;
+                             console.log("results counter after click: "+ results_start);
+                         }
+                     }else{
+                         alert('ajax error');
+                     }
+                }
+            });
+        });
+    });
+    
+    // show ajax spinner
+    $(document).ajaxStart(function() {
+        $('#spinner').show();
+    }).ajaxStop(function() {
+        $('#spinner').hide();
+    });
+</script>
+{% endblock jquery %}
+{% block content %}
+
+{% include 'board/elements/search_form.html' %}
+
+<h2 class='total_results'></h2>
+<div class="results">
+    
+</div>
+<button class='btn btn-primary' id='load_more'>Load More Results</button>
+<div id="spinner"><img src="{{STATIC_URL}}img/loading.gif" /></div>
+
+{% endblock content %}

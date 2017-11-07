@@ -1,0 +1,6 @@
+## Tornado Heroku Starter Project
+
+This is a simple starter project for deploying a Tornado web app on Heroku.  The actual code was written by [Mike Dory](dory.me).  Removed some scripts, fixed the static file serving, templates inherit from base.html, added a favicon + requirements file. General clean up.
+
+Simple run init-project.sh and your app will be up and running on Heroku.
+python main.py to run locally (after installing requirements)
